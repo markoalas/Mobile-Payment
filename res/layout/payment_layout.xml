@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:stretchColumns="1">
+
+    <TableRow>
+        <TextView
+        	android:layout_column="1" 
+        	android:text="Beneficiary" 
+        	android:layout_width="wrap_content" 
+        	android:layout_height="wrap_content"
+        	android:layout_weight="0.5" />
+            
+        <TextView 
+        	android:text="Beneficiary" 
+        	android:id="@+id/beneficiary" 
+        	android:layout_width="wrap_content" 
+        	android:layout_height="wrap_content" 
+        	android:layout_weight="0.5"
+        	 />
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="Amount"
+            android:layout_weight="0.5"
+            />
+        <EditText 
+        	android:layout_width="200sp" 
+        	android:layout_height="wrap_content" 
+        	android:id="@+id/amount" 
+        	android:inputType="number|textPassword" 
+        	android:layout_weight="0.5"
+        	/>
+        
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="PIN"
+            android:layout_weight="0.5"
+            />
+        <EditText 
+        	android:layout_width="fill_parent" 
+        	android:layout_height="wrap_content" 
+        	android:id="@+id/pin" 
+        	android:password="true"
+        	android:inputType="number|textPassword" 
+        	android:layout_weight="0.5"
+        	/>
+        
+    </TableRow>
+    <TableRow>
+        <Button 
+        	android:layout_column="2"
+        	android:text="  Pay  "
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:id="@+id/PayButton" 
+        	android:layout_weight="0.5"/>
+    </TableRow>
+    
+</TableLayout>
+
+
