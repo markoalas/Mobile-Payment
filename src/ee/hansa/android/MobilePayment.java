@@ -50,14 +50,20 @@ public class MobilePayment extends Activity {
 		}
 	}
 
-	private void showPaymentForm(String beneficiaryName, final String number) {
-		((TextView)findViewById(R.id.beneficiary)).setText(beneficiaryName);
+	private void showPaymentForm(String beneficiaryName, String number) {
+		if (number.startsWith("+372")) {
+			number = number.substring(4);
+		}
 		
+		((TextView)findViewById(R.id.beneficiary)).setText(beneficiaryName);
+		((TextView)findViewById(R.id.number)).setText(number);
+		
+		final String finalNumber = number;
 		((Button)findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				EditText amountEdit = (EditText)findViewById(R.id.amount);
 				double amount = Double.valueOf(amountEdit.getText().toString());
-				makePayment(number, amount);
+				makePayment(finalNumber, amount);
 			}
 		});
 	}
