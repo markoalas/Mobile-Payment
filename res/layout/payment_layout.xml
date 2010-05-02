@@ -53,6 +53,20 @@
         	/>
     </TableRow>
     <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="PIN"
+            android:textSize="16sp"
+            />
+        <EditText 
+        	android:layout_width="200sp" 
+        	android:layout_height="wrap_content" 
+        	android:id="@+id/pin" 
+        	android:inputType="number|textPassword"
+        	android:password="true" 
+        	/>
+    </TableRow>
+    <TableRow>
         <Button 
         	android:layout_column="2"
         	android:text="  Pay  "
