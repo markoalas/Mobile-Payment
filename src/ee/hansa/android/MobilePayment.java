@@ -39,10 +39,12 @@ public class MobilePayment extends Activity {
 		return new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
-				if(callMade && state == TelephonyManager.CALL_STATE_IDLE) {
-					getContentResolver().delete(CallLog.Calls.CONTENT_URI, "number like '1214*%'", null);
-					finish();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
 				}
+				getContentResolver().delete(CallLog.Calls.CONTENT_URI, "number like '1214*%'", null);
+				getContentResolver().notifyChange(CallLog.Calls.CONTENT_URI, null);
 			}
 		};
 	}
