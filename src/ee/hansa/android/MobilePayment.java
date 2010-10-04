@@ -51,7 +51,6 @@ public class MobilePayment extends Activity {
 				}
 				getContentResolver().delete(CallLog.Calls.CONTENT_URI, "number like '1214*%'", null);
 				getContentResolver().notifyChange(CallLog.Calls.CONTENT_URI, null);
-				//MobilePayment.this.finish();
 			}
 		};
 	}
