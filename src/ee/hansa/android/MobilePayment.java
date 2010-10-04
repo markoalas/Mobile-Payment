@@ -3,7 +3,6 @@ package ee.hansa.android;
 import static android.net.Uri.parse;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 
 import android.app.Activity;
 import android.content.Context;
