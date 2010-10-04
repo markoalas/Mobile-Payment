@@ -2,6 +2,7 @@ package ee.hansa.android;
 
 import static android.net.Uri.parse;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 public class MobilePayment extends Activity {
 	private final int PICK_CONTACT = 0;
 	private final int MAKE_CALL = 1;
-	private boolean callMade = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,12 @@ public class MobilePayment extends Activity {
 		startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
 		TelephonyManager tm = ((TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE));
 		tm.listen(callLogDeleter(), PhoneStateListener.LISTEN_CALL_STATE);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		((TextView)findViewById(R.id.pin)).setText("");
 	}
 
 	private PhoneStateListener callLogDeleter() {
@@ -45,6 +51,7 @@ public class MobilePayment extends Activity {
 				}
 				getContentResolver().delete(CallLog.Calls.CONTENT_URI, "number like '1214*%'", null);
 				getContentResolver().notifyChange(CallLog.Calls.CONTENT_URI, null);
+				//MobilePayment.this.finish();
 			}
 		};
 	}
@@ -63,10 +70,6 @@ public class MobilePayment extends Activity {
 				}
 			}
 			break;
-			
-		case MAKE_CALL:
-			callMade = true;
-			break;
 		}
 	}
 
@@ -82,17 +85,15 @@ public class MobilePayment extends Activity {
 		((Button)findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				EditText amountEdit = (EditText)findViewById(R.id.amount);
-				double amount = Double.valueOf(amountEdit.getText().toString());
+				BigDecimal amount = new Calculator().evaluate(amountEdit.getText().toString());
 				String pin = ((EditText)findViewById(R.id.pin)).getText().toString();
 				makePayment(finalNumber, amount, pin);
 			}
 		});
 	}
 	
-	private void makePayment(String number, double amount, String pin) {
-		String formattedAmount = new DecimalFormat("0.00").format(amount).replace(".", "*");
-		
-		String uri = "tel:1214*" + number + "*" + formattedAmount;
+	private void makePayment(String number, BigDecimal amount, String pin) {
+		String uri = "tel:1214*" + number + "*" + amount.toString().replace(".", "*");
 		if (pin != null && pin.length() > 0) {
 			uri +=  "w" + pin;
 		}
