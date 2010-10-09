@@ -24,7 +24,6 @@ import android.widget.TextView;
 
 public class MobilePayment extends Activity {
 	private final int PICK_CONTACT = 0;
-	private final int MAKE_CALL = 1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -120,7 +119,7 @@ public class MobilePayment extends Activity {
 			uri +=  "w" + pin;
 		}
 		
-		startActivityForResult(new Intent(Intent.ACTION_CALL, parse(uri)), MAKE_CALL);		
+		startActivity(new Intent(Intent.ACTION_CALL, parse(uri)));		
 	}
 	
 	private AlertDialog alert(String message) {
