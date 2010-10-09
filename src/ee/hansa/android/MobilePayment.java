@@ -30,19 +30,12 @@ public class MobilePayment extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.payment_layout);
-		pickContact();
-		TelephonyManager tm = ((TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE));
-		tm.listen(callLogDeleter(), PhoneStateListener.LISTEN_CALL_STATE);
+		initCallLogDeleter();
+		pickBeneficiary();
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		((TextView)findViewById(R.id.pin)).setText("");
-	}
-
-	private PhoneStateListener callLogDeleter() {
-		return new PhoneStateListener() {
+	private void initCallLogDeleter() {
+		PhoneStateListener deleter = new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
 				try {
@@ -53,6 +46,15 @@ public class MobilePayment extends Activity {
 				getContentResolver().notifyChange(CallLog.Calls.CONTENT_URI, null);
 			}
 		};
+		
+		TelephonyManager tm = ((TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE));
+		tm.listen(deleter, PhoneStateListener.LISTEN_CALL_STATE);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		((TextView)findViewById(R.id.pin)).setText("");
 	}
 
 	@Override
@@ -72,20 +74,15 @@ public class MobilePayment extends Activity {
 		}
 	}
 
-	private void showPaymentForm(String beneficiaryName, String number) {
-		if (number.startsWith("+372")) {
-			number = number.substring(4);
-		}
-		
+	private void showPaymentForm(final String beneficiaryName, final String number) {
 		((TextView)findViewById(R.id.beneficiary)).setText(beneficiaryName);
 		((TextView)findViewById(R.id.number)).setText(number);
 		
-		final String finalNumber = number;
 		((Button)findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
 					String pin = ((EditText)findViewById(R.id.pin)).getText().toString();
-					makePayment(finalNumber, evaluateAmount(), pin);
+					makePayment(removeCountryPrefix(number), evaluateAmount(), pin);
 				}
 				catch (Exception e) {
 					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -96,12 +93,19 @@ public class MobilePayment extends Activity {
 		
 		((Button)findViewById(R.id.BackButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				pickContact();
+				pickBeneficiary();
 			}
 		});
 	}
+
+	private String removeCountryPrefix(String number) {
+		if (number.startsWith("+372")) {
+			number = number.substring(4);
+		}
+		return number;
+	}
 	
-	private void pickContact() {
+	private void pickBeneficiary() {
 		startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
 	}
 	
