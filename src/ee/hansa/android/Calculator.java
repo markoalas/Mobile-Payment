@@ -3,8 +3,6 @@ package ee.hansa.android;
 import static java.math.RoundingMode.HALF_EVEN;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.*;
 
 class Calculator {
