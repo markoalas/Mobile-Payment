@@ -67,6 +67,13 @@
         	/>
     </TableRow>
     <TableRow>
+    	<Button 
+        	android:layout_column="1"
+        	android:text="  Back  "
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:id="@+id/BackButton" 
+        	/>
         <Button 
         	android:layout_column="2"
         	android:text="  Pay  "

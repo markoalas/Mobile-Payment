@@ -5,7 +5,10 @@ import static android.net.Uri.parse;
 import java.math.BigDecimal;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -82,12 +85,27 @@ public class MobilePayment extends Activity {
 		final String finalNumber = number;
 		((Button)findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				EditText amountEdit = (EditText)findViewById(R.id.amount);
-				BigDecimal amount = new Calculator().evaluate(amountEdit.getText().toString());
-				String pin = ((EditText)findViewById(R.id.pin)).getText().toString();
-				makePayment(finalNumber, amount, pin);
+				try {
+					String pin = ((EditText)findViewById(R.id.pin)).getText().toString();
+					makePayment(finalNumber, evaluateAmount(), pin);
+				}
+				catch (Exception e) {
+					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
+				}
+			}
+
+		});
+		
+		((Button)findViewById(R.id.BackButton)).setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
 			}
 		});
+	}
+	
+	private BigDecimal evaluateAmount() {
+		EditText amountEdit = (EditText)findViewById(R.id.amount);
+		return new Calculator().evaluate(amountEdit.getText().toString());
 	}
 	
 	private void makePayment(String number, BigDecimal amount, String pin) {
@@ -97,5 +115,13 @@ public class MobilePayment extends Activity {
 		}
 		
 		startActivityForResult(new Intent(Intent.ACTION_CALL, parse(uri)), MAKE_CALL);		
+	}
+	
+	private AlertDialog alert(String message) {
+		return new AlertDialog.Builder(MobilePayment.this)
+		  .setTitle("Error")
+		  .setMessage(message)
+		  .setPositiveButton("OK", null)
+		  .show();
 	}
 }
