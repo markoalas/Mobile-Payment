@@ -7,7 +7,7 @@ class Calculator {
 	public BigDecimal evaluate(String inputString) {
 		String tok1, tok2;
 
-		StringTokenizer tokens = new StringTokenizer(inputString, "+-/*", true);
+		StringTokenizer tokens = new StringTokenizer(inputString, "+-/*#", true);
 
 		// get the first token and put its value into result
 		if ((tok1 = tokens.nextToken()).equals("+"))
@@ -37,6 +37,7 @@ class Calculator {
 			case '-':
 				result = result.subtract(new BigDecimal(tok2));
 				break;
+			case '#':
 			case '/':
 				result = result.divide(new BigDecimal(tok2));
 				break;
