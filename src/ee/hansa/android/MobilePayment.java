@@ -6,9 +6,7 @@ import java.math.BigDecimal;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -32,7 +30,7 @@ public class MobilePayment extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.payment_layout);
-		startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
+		pickContact();
 		TelephonyManager tm = ((TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE));
 		tm.listen(callLogDeleter(), PhoneStateListener.LISTEN_CALL_STATE);
 	}
@@ -98,9 +96,13 @@ public class MobilePayment extends Activity {
 		
 		((Button)findViewById(R.id.BackButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
+				pickContact();
 			}
 		});
+	}
+	
+	private void pickContact() {
+		startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
 	}
 	
 	private BigDecimal evaluateAmount() {
