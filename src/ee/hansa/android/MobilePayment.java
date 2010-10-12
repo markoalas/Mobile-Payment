@@ -63,10 +63,15 @@ public class MobilePayment extends Activity {
 		switch (reqCode) {
 		case PICK_CONTACT:
 			if (resultCode == Activity.RESULT_OK) {
-				Uri contactData = data.getData();
-				Cursor c = managedQuery(contactData, new String[]{People.DISPLAY_NAME, Phones.NUMBER}, null, null, Phones.ISPRIMARY + " DESC");
-				if (c.moveToFirst()) {
-					showPaymentForm(c.getString(0), c.getString(1));
+				try {
+					Uri contactData = data.getData();
+					Cursor c = managedQuery(contactData, new String[]{People.DISPLAY_NAME, Phones.NUMBER}, null, null, Phones.ISPRIMARY + " DESC");
+					if (c.moveToFirst()) {
+						showPaymentForm(c.getString(0), c.getString(1));
+					}
+				}
+				catch (Exception e) {
+					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
 				}
 			}
 			break;
