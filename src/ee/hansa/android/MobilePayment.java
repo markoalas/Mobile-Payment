@@ -8,12 +8,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog;
-import android.provider.Contacts.People;
-import android.provider.Contacts.People.Phones;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.view.View;
@@ -63,15 +59,14 @@ public class MobilePayment extends Activity {
 		switch (reqCode) {
 		case PICK_CONTACT:
 			if (resultCode == Activity.RESULT_OK) {
-				Uri contactData = data.getData();
-				Cursor c = managedQuery(contactData, new String[]{People.DISPLAY_NAME, Phones.NUMBER}, null, null, Phones.ISPRIMARY + " DESC");
-				if (c.moveToFirst()) {
-					showPaymentForm(c.getString(0), c.getString(1));
-				}
+				String[] result = ContactAccessor.getInstance().getNameAndNumber(this, data);
+				
+				showPaymentForm(result[0], result[1]);
 			}
 			break;
 		}
 	}
+
 
 	private void showPaymentForm(final String beneficiaryName, final String number) {
 		((TextView)findViewById(R.id.beneficiary)).setText(beneficiaryName);
@@ -105,7 +100,7 @@ public class MobilePayment extends Activity {
 	}
 	
 	private void pickBeneficiary() {
-		startActivityForResult(new Intent(Intent.ACTION_PICK, People.CONTENT_URI), PICK_CONTACT);
+		startActivityForResult(ContactAccessor.getInstance().getContactPickerIntent(), PICK_CONTACT);
 	}
 	
 	private BigDecimal evaluateAmount() {
