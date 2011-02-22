@@ -41,15 +41,15 @@ public class MobilePayment extends Activity {
 				getContentResolver().notifyChange(CallLog.Calls.CONTENT_URI, null);
 			}
 		};
-		
-		TelephonyManager tm = ((TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE));
+
+		TelephonyManager tm = ((TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE));
 		tm.listen(deleter, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		((TextView)findViewById(R.id.pin)).setText("");
+		((TextView) findViewById(R.id.pin)).setText("");
 	}
 
 	@Override
@@ -59,33 +59,34 @@ public class MobilePayment extends Activity {
 		switch (reqCode) {
 		case PICK_CONTACT:
 			if (resultCode == Activity.RESULT_OK) {
-				String[] result = ContactAccessor.getInstance().getNameAndNumber(this, data);
-				
-				showPaymentForm(result[0], result[1]);
+				try {
+					String[] result = ContactAccessor.getInstance().getNameAndNumber(this, data);
+					showPaymentForm(result[0], result[1]);
+				} catch (Exception e) {
+					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
+				}
 			}
 			break;
 		}
 	}
 
-
 	private void showPaymentForm(final String beneficiaryName, final String number) {
-		((TextView)findViewById(R.id.beneficiary)).setText(beneficiaryName);
-		((TextView)findViewById(R.id.number)).setText(number);
-		
-		((Button)findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
+		((TextView) findViewById(R.id.beneficiary)).setText(beneficiaryName);
+		((TextView) findViewById(R.id.number)).setText(number);
+
+		((Button) findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
-					String pin = ((EditText)findViewById(R.id.pin)).getText().toString();
+					String pin = ((EditText) findViewById(R.id.pin)).getText().toString();
 					makePayment(removeCountryPrefix(number), evaluateAmount(), pin);
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
 				}
 			}
 
 		});
-		
-		((Button)findViewById(R.id.BackButton)).setOnClickListener(new OnClickListener() {
+
+		((Button) findViewById(R.id.BackButton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				pickBeneficiary();
 			}
@@ -98,30 +99,26 @@ public class MobilePayment extends Activity {
 		}
 		return number;
 	}
-	
+
 	private void pickBeneficiary() {
 		startActivityForResult(ContactAccessor.getInstance().getContactPickerIntent(), PICK_CONTACT);
 	}
-	
+
 	private BigDecimal evaluateAmount() {
-		EditText amountEdit = (EditText)findViewById(R.id.amount);
+		EditText amountEdit = (EditText) findViewById(R.id.amount);
 		return new Calculator().evaluate(amountEdit.getText().toString());
 	}
-	
+
 	private void makePayment(String number, BigDecimal amount, String pin) {
 		String uri = "tel:1214*" + number + "*" + amount.toString().replace(".", "*");
 		if (pin != null && pin.length() > 0) {
-			uri +=  "w" + pin;
+			uri += "w" + pin;
 		}
-		
-		startActivity(new Intent(Intent.ACTION_CALL, parse(uri)));		
+
+		startActivity(new Intent(Intent.ACTION_CALL, parse(uri)));
 	}
-	
+
 	private AlertDialog alert(String message) {
-		return new AlertDialog.Builder(MobilePayment.this)
-		  .setTitle("Error")
-		  .setMessage(message)
-		  .setPositiveButton("OK", null)
-		  .show();
+		return new AlertDialog.Builder(MobilePayment.this).setTitle("Error").setMessage(message).setPositiveButton("OK", null).show();
 	}
 }
