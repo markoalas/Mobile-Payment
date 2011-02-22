@@ -2,6 +2,7 @@ package ee.hansa.android;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 
 
 /**
@@ -15,25 +16,24 @@ public abstract class ContactAccessor {
 	
 	public static ContactAccessor getInstance() {
         if (sInstance == null) {
-        	/*
-            String className;
-            int sdkVersion = Integer.parseInt(Build.VERSION.SDK);
-            if (sdkVersion <= Build.VERSION_CODES.DONUT) {
-                className = "ContactAccessorOldApi";
-            } else {
-                className = "ContactAccessorNewApi";
-            }
             try {
                 Class<? extends ContactAccessor> clazz =
-                        Class.forName(ContactAccessor.class.getPackage() + "." + className)
+                        Class.forName(ContactAccessor.class.getPackage().getName() + "." + getClassName())
                                 .asSubclass(ContactAccessor.class);
                 sInstance = clazz.newInstance();
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
-            */
-        	sInstance = new ContactAccessorNewApi();
         }
         return sInstance;
     }
+	private static String getClassName() {
+		String className;
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR) {
+		    className = "ContactAccessorOldApi";
+		} else {
+		    className = "ContactAccessorNewApi";
+		}
+		return className;
+	}
 }

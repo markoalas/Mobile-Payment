@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 public class MobilePayment extends Activity {
 	private final int PICK_CONTACT = 0;
+	private final ContactAccessor contactAccessor = ContactAccessor.getInstance();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class MobilePayment extends Activity {
 		case PICK_CONTACT:
 			if (resultCode == Activity.RESULT_OK) {
 				try {
-					String[] result = ContactAccessor.getInstance().getNameAndNumber(this, data);
+					String[] result = contactAccessor.getNameAndNumber(this, data);
 					showPaymentForm(result[0], result[1]);
 				} catch (Exception e) {
 					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -101,7 +102,7 @@ public class MobilePayment extends Activity {
 	}
 
 	private void pickBeneficiary() {
-		startActivityForResult(ContactAccessor.getInstance().getContactPickerIntent(), PICK_CONTACT);
+		startActivityForResult(contactAccessor.getContactPickerIntent(), PICK_CONTACT);
 	}
 
 	private BigDecimal evaluateAmount() {
