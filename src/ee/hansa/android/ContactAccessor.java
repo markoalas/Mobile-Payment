@@ -17,15 +17,17 @@ public abstract class ContactAccessor {
 	public static ContactAccessor getInstance() {
 		if (sInstance == null) {
 			try {
-        sInstance = getContactAccessorClass().newInstance();
-      } catch (Exception e) {
+				Class<? extends ContactAccessor> clazz = Class.forName(ContactAccessor.class.getPackage().getName() + "." + getClassName())
+						.asSubclass(ContactAccessor.class);
+				sInstance = clazz.newInstance();
+			} catch (Exception e) {
 				throw new IllegalStateException(e);
 			}
 		}
 		return sInstance;
 	}
 
-	private static Class<? extends ContactAccessor> getContactAccessorClass() {
-    return Build.VERSION.SDK_INT < Build.VERSION_CODES.ECLAIR ? ContactAccessorOldApi.class : ContactAccessorNewApi.class;
+	private static String getClassName() {
+    return Build.VERSION.SDK_INT < Build.VERSION_CODES.ECLAIR ? "ContactAccessorOldApi" : "ContactAccessorNewApi";
 	}
 }
