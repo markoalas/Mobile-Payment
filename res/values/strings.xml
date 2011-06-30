@@ -3,4 +3,5 @@
     <string name="hello">Hello World, MobilePayment!</string>
     <string name="app_name">Mobile Payment</string>
     <string name="pay">Pay</string>
+    <string name="choose_number">Choose number</string>
 </resources>

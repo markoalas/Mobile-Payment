@@ -12,25 +12,20 @@ public abstract class ContactAccessor {
 
 	public abstract Intent getContactPickerIntent();
 
-	public abstract String[] getNameAndNumber(Activity activity, Intent data);
+	public abstract ContactInfo getContactInfo(Activity activity, Intent data);
 
 	public static ContactAccessor getInstance() {
 		if (sInstance == null) {
 			try {
-				Class<? extends ContactAccessor> clazz = Class.forName(ContactAccessor.class.getPackage().getName() + "." + getClassName())
-						.asSubclass(ContactAccessor.class);
-				sInstance = clazz.newInstance();
-			} catch (Exception e) {
+        sInstance = getContactAccessorClass().newInstance();
+      } catch (Exception e) {
 				throw new IllegalStateException(e);
 			}
 		}
 		return sInstance;
 	}
 
-	private static String getClassName() {
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR)
-			return "ContactAccessorOldApi";
-		else
-			return "ContactAccessorNewApi";
+	private static Class<? extends ContactAccessor> getContactAccessorClass() {
+    return Build.VERSION.SDK_INT < Build.VERSION_CODES.ECLAIR ? ContactAccessorOldApi.class : ContactAccessorNewApi.class;
 	}
 }
