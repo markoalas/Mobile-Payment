@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.Contacts.People;
 import android.provider.Contacts.People.Phones;
 
+@SuppressWarnings({"deprecation"})
 public class ContactAccessorOldApi extends ContactAccessor {
 	@Override
 	public Intent getContactPickerIntent() {
@@ -14,11 +15,11 @@ public class ContactAccessorOldApi extends ContactAccessor {
 	}
 	
 	@Override
-	public String[] getNameAndNumber(Activity activity, Intent data) {
+	public ContactInfo getContactInfo(Activity activity, Intent data) {
 		Uri contactData = data.getData();
 		Cursor c = activity.managedQuery(contactData, new String[]{People.DISPLAY_NAME, People.NUMBER}, null, null, Phones.ISPRIMARY + " DESC");
 		if (c.moveToFirst()) {
-			return new String[] { c.getString(0), c.getString(1) };
+			return new ContactInfo(c.getString(0)).addPhoneNumber(c.getString(1));
 		}
 		
 		return null;
