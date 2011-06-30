@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.CallLog;
@@ -14,19 +15,22 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 public class MobilePayment extends Activity {
 	private final int PICK_CONTACT = 0;
-	private final ContactAccessor contactAccessor = ContactAccessor.getInstance();
+  private final ContactAccessor contactAccessor = ContactAccessor.getInstance();
+  private TextView numberField;
+  private TextView nameField;
 
-	@Override
+  @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.payment_layout);
-		initCallLogDeleter();
+    numberField = (TextView)findViewById(R.id.number);
+    nameField = (TextView)findViewById(R.id.beneficiary);
+    initCallLogDeleter();
 		pickBeneficiary();
 	}
 
@@ -36,7 +40,7 @@ public class MobilePayment extends Activity {
 			public void onCallStateChanged(int state, String incomingNumber) {
 				try {
 					Thread.sleep(1000);
-				} catch (InterruptedException e) {
+				} catch (InterruptedException ignore) {
 				}
 				getContentResolver().delete(CallLog.Calls.CONTENT_URI, "number like '1214*%'", null);
 				getContentResolver().notifyChange(CallLog.Calls.CONTENT_URI, null);
@@ -61,8 +65,8 @@ public class MobilePayment extends Activity {
 		case PICK_CONTACT:
 			if (resultCode == Activity.RESULT_OK) {
 				try {
-					String[] result = contactAccessor.getNameAndNumber(this, data);
-					showPaymentForm(result[0], result[1]);
+					ContactInfo result = contactAccessor.getContactInfo(this, data);
+					showPaymentForm(result);
 				} catch (Exception e) {
 					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
 				}
@@ -71,34 +75,49 @@ public class MobilePayment extends Activity {
 		}
 	}
 
-	private void showPaymentForm(final String beneficiaryName, final String number) {
-		((TextView) findViewById(R.id.beneficiary)).setText(beneficiaryName);
-		((TextView) findViewById(R.id.number)).setText(number);
+	private void showPaymentForm(ContactInfo contactInfo) {
+    nameField.setText(contactInfo.getName());
+    final String[] phoneNumbers = contactInfo.getPhoneNumbers();
 
-		((Button) findViewById(R.id.PayButton)).setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				try {
-					String pin = ((EditText) findViewById(R.id.pin)).getText().toString();
-					makePayment(removeCountryPrefix(number), evaluateAmount(), pin);
-				} catch (Exception e) {
-					alert(e.getClass().getSimpleName() + ": " + e.getMessage());
-				}
-			}
+    if (phoneNumbers.length > 1) {
+      new AlertDialog.Builder(this)
+        .setTitle(R.string.choose_number)
+        .setSingleChoiceItems(phoneNumbers, -1, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int item) {
+            numberField.setText(phoneNumbers[item]);
+            dialog.dismiss();
+          }
+        })
+        .create()
+        .show();
+    }
+    else if (phoneNumbers.length == 0) {
+      nameField.setText("");
+      numberField.setText("");
+      alert("No phone numbers");
+    }
+    else {
+      numberField.setText(phoneNumbers[0]);
+    }
 
-		});
+		findViewById(R.id.PayButton).setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        try {
+          String pin = ((EditText)findViewById(R.id.pin)).getText().toString();
+          makePayment(numberField.getText().toString().trim(), evaluateAmount(), pin);
+        }
+        catch (Exception e) {
+          alert(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+      }
 
-		((Button) findViewById(R.id.BackButton)).setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				pickBeneficiary();
-			}
-		});
-	}
+    });
 
-	private String removeCountryPrefix(String number) {
-		if (number.startsWith("+372")) {
-			number = number.substring(4);
-		}
-		return number;
+		findViewById(R.id.BackButton).setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        pickBeneficiary();
+      }
+    });
 	}
 
 	private void pickBeneficiary() {
@@ -120,6 +139,6 @@ public class MobilePayment extends Activity {
 	}
 
 	private AlertDialog alert(String message) {
-		return new AlertDialog.Builder(MobilePayment.this).setTitle("Error").setMessage(message).setPositiveButton("OK", null).show();
+		return new AlertDialog.Builder(this).setTitle("Error").setMessage(message).setPositiveButton("OK", null).show();
 	}
 }

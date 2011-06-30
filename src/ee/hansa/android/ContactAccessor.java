@@ -12,7 +12,7 @@ public abstract class ContactAccessor {
 
 	public abstract Intent getContactPickerIntent();
 
-	public abstract String[] getNameAndNumber(Activity activity, Intent data);
+	public abstract ContactInfo getContactInfo(Activity activity, Intent data);
 
 	public static ContactAccessor getInstance() {
 		if (sInstance == null) {
@@ -28,9 +28,6 @@ public abstract class ContactAccessor {
 	}
 
 	private static String getClassName() {
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR)
-			return "ContactAccessorOldApi";
-		else
-			return "ContactAccessorNewApi";
+    return Build.VERSION.SDK_INT < Build.VERSION_CODES.ECLAIR ? "ContactAccessorOldApi" : "ContactAccessorNewApi";
 	}
 }
